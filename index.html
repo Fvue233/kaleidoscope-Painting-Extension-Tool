@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>森罗酒馆：画附属 在线生成画工具</title>
+    <style>
+        /* 全局样式 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #87CEEB;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%2387CEEB"/><rect width="10" height="10" x="0" y="0" fill="%23B0E0E6"/><rect width="10" height="10" x="20" y="0" fill="%23B0E0E6"/><rect width="10" height="10" x="40" y="0" fill="%23B0E0E6"/><rect width="10" height="10" x="60" y="0" fill="%23B0E0E6"/><rect width="10" height="10" x="80" y="0" fill="%23B0E0E6"/><rect width="10" height="10" x="0" y="20" fill="%23B0E0E6"/><rect width="10" height="10" x="20" y="20" fill="%23B0E0E6"/><rect width="10" height="10" x="40" y="20" fill="%23B0E0E6"/><rect width="10" height="10" x="60" y="20" fill="%23B0E0E6"/><rect width="10" height="10" x="80" y="20" fill="%23B0E0E6"/><rect width="10" height="10" x="0" y="40" fill="%23B0E0E6"/><rect width="10" height="10" x="20" y="40" fill="%23B0E0E6"/><rect width="10" height="10" x="40" y="40" fill="%23B0E0E6"/><rect width="10" height="10" x="60" y="40" fill="%23B0E0E6"/><rect width="10" height="10" x="80" y="40" fill="%23B0E0E6"/><rect width="10" height="10" x="0" y="60" fill="%23B0E0E6"/><rect width="10" height="10" x="20" y="60" fill="%23B0E0E6"/><rect width="10" height="10" x="40" y="60" fill="%23B0E0E6"/><rect width="10" height="10" x="60" y="60" fill="%23B0E0E6"/><rect width="10" height="10" x="80" y="60" fill="%23B0E0E6"/><rect width="10" height="10" x="0" y="80" fill="%23B0E0E6"/><rect width="10" height="10" x="20" y="80" fill="%23B0E0E6"/><rect width="10" height="10" x="40" y="80" fill="%23B0E0E6"/><rect width="10" height="10" x="60" y="80" fill="%23B0E0E6"/><rect width="10" height="10" x="80" y="80" fill="%23B0E0E6"/></svg>');
+            background-size: 100px 100px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 容器样式 */
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+        }
+        
+        /* 标题样式 */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        
+        /* 说明部分 */
+        .instructions {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #e8f4f8;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+        
+        .instructions:hover {
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: #2980b9;
+            font-size: 1.2rem;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.6;
+        }
+        
+        /* 上传区域 */
+        .upload-section {
+            margin: 30px 0;
+            padding: 30px;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background-color: rgba(255,255,255,0.8);
+        }
+        
+        .upload-section:hover {
+            border-color: #2980b9;
+            background-color: rgba(255,255,255,0.95);
+        }
+        
+        .upload-section input[type="file"] {
+            display: none;
+        }
+        
+        .upload-section label {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #27ae60;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        
+        .upload-section label:hover {
+            background-color: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+        }
+        
+        #fileInfo {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        /* 预览区域 */
+        .preview-section {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .preview {
+            text-align: center;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .preview:hover {
+            transform: scale(1.05);
+        }
+        
+        .preview h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        
+        canvas {
+            border: 3px solid #3498db;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        canvas:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        
+        /* 按钮区域 */
+        .button-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        button {
+            padding: 12px 30px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        /* 下载区域 */
+        .download-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .download-section a {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #e67e22;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
+        }
+        
+        .download-section a:hover {
+            background-color: #d35400;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(230, 126, 34, 0.4);
+        }
+        
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 底图选择区域 */
+        .base-selection {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .base-selection h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .base-slider {
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+        
+        .base-options {
+            display: flex;
+            gap: 15px;
+            padding: 0 10px;
+        }
+        
+        .base-option {
+            cursor: pointer;
+            border: 3px solid transparent;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            padding: 5px;
+        }
+        
+        .base-option:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        .base-option.selected {
+            border-color: #27ae60;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        
+        .base-option img {
+            display: block;
+            border-radius: 4px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .preview-section {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .preview {
+                margin: 20px 0;
+            }
+            
+            .base-options {
+                gap: 10px;
+            }
+            
+            .base-option img {
+                width: 30px;
+                height: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Minecraft皮肤转画贴图工具</h1>
+        
+        <div class="instructions">
+            <h3>使用说明：</h3>
+            <ol>
+                <li>点击"选择皮肤文件"按钮上传你的Minecraft皮肤文件（.png格式）</li>
+                <li>系统会自动预览原始皮肤</li>
+                <li>点击"转换为画贴图"按钮生成画的贴图</li>
+                <li>预览转换后的效果</li>
+                <li>点击"下载画贴图"保存生成的贴图</li>
+            </ol>
+        </div>
+        
+        <div class="base-selection">
+            <h3>选择底图</h3>
+            <div class="base-slider">
+                <div class="base-options">
+                    <div class="base-option" data-value="base/1.png">
+                        <img src="base/1.png" alt="底图1" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/2.png">
+                        <img src="base/2.png" alt="底图2" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/3.png">
+                        <img src="base/3.png" alt="底图3" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/4.png">
+                        <img src="base/4.png" alt="底图4" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/5.png">
+                        <img src="base/5.png" alt="底图5" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/6.png">
+                        <img src="base/6.png" alt="底图6" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/7.png">
+                        <img src="base/7.png" alt="底图7" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/8.png">
+                        <img src="base/8.png" alt="底图8" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/9.png">
+                        <img src="base/9.png" alt="底图9" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/10.png">
+                        <img src="base/10.png" alt="底图10" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/11.png">
+                        <img src="base/11.png" alt="底图11" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/12.png">
+                        <img src="base/12.png" alt="底图12" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/13.png">
+                        <img src="base/13.png" alt="底图13" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/14.png">
+                        <img src="base/14.png" alt="底图14" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/15.png">
+                        <img src="base/15.png" alt="底图15" width="40" height="40">
+                    </div>
+                    <div class="base-option" data-value="base/16.png">
+                        <img src="base/16.png" alt="底图16" width="40" height="40">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="upload-section">
+            <input type="file" id="skinFile" accept=".png">
+            <label for="skinFile">选择皮肤文件</label>
+            <p id="fileInfo">未选择文件</p>
+        </div>
+        
+        <div class="preview-section">
+            <div class="preview">
+                <h3>原始皮肤</h3>
+                <canvas id="originalSkin" width="16" height="16"></canvas>
+            </div>
+            <div class="preview">
+                <h3>转换后的画贴图</h3>
+                <canvas id="paintingTexture" width="16" height="16"></canvas>
+            </div>
+        </div>
+        
+        <div class="button-section">
+            <button id="convertBtn">转换为画贴图</button>
+        </div>
+        
+        <div class="download-section">
+            <a id="downloadLink" href="#" style="display: none;">下载画贴图</a>
+        </div>
+    </div>
+    
+    <script>
+        // 获取DOM元素
+        const skinFileInput = document.getElementById('skinFile');
+        const fileInfo = document.getElementById('fileInfo');
+        const originalSkinCanvas = document.getElementById('originalSkin');
+        const paintingTextureCanvas = document.getElementById('paintingTexture');
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadLink = document.getElementById('downloadLink');
+        const baseOptions = document.querySelectorAll('.base-option');
+        
+        // 画布上下文
+        const originalCtx = originalSkinCanvas.getContext('2d');
+        const paintingCtx = paintingTextureCanvas.getContext('2d');
+        
+        // 皮肤图片对象
+        let skinImage = null;
+        let baseImage = null;
+        
+        // 初始化函数
+        function init() {
+            // 初始化baseImage
+            baseImage = null;
+            
+            // 设置画布样式
+            originalSkinCanvas.style.width = '128px';
+            originalSkinCanvas.style.height = '128px';
+            paintingTextureCanvas.style.width = '128px';
+            paintingTextureCanvas.style.height = '128px';
+            
+            // 确保画布使用 nearest-neighbor 缩放，保持像素清晰
+            originalSkinCanvas.style.imageRendering = 'pixelated';
+            paintingTextureCanvas.style.imageRendering = 'pixelated';
+            
+            // 添加拖放功能
+            const uploadSection = document.querySelector('.upload-section');
+            
+            uploadSection.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadSection.style.borderColor = '#2980b9';
+                uploadSection.style.backgroundColor = 'rgba(255,255,255,0.95)';
+            });
+            
+            uploadSection.addEventListener('dragleave', function() {
+                uploadSection.style.borderColor = '#3498db';
+                uploadSection.style.backgroundColor = 'rgba(255,255,255,0.8)';
+            });
+            
+            uploadSection.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadSection.style.borderColor = '#3498db';
+                uploadSection.style.backgroundColor = 'rgba(255,255,255,0.8)';
+                
+                const file = e.dataTransfer.files[0];
+                if (file && file.type === 'image/png') {
+                    handleFile(file);
+                } else {
+                    fileInfo.textContent = '请上传PNG格式的皮肤文件';
+                }
+            });
+            
+            // 监听底图选择
+            baseOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除所有选项的选中状态
+                    baseOptions.forEach(opt => opt.classList.remove('selected'));
+                    // 添加当前选项的选中状态
+                    this.classList.add('selected');
+                    // 获取选中的底图路径
+                    const selectedValue = this.getAttribute('data-value');
+                    // 加载选中的底图
+                    loadBaseImage(selectedValue);
+                });
+            });
+        }
+        
+        // 处理文件上传
+        function handleFile(file) {
+            fileInfo.textContent = `已选择: ${file.name}`;
+            
+            // 显示加载动画
+            fileInfo.innerHTML = `<span class="loading"></span> 正在加载皮肤...`;
+            
+            // 读取文件并显示原始皮肤
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                skinImage = new Image();
+                skinImage.onload = function() {
+                    // 绘制原始皮肤
+                    originalCtx.clearRect(0, 0, 16, 16);
+                    // 将64x64的皮肤缩小到16x16的画布
+                    originalCtx.drawImage(skinImage, 0, 0, 64, 64, 0, 0, 16, 16);
+                    
+                    // 更新文件信息
+                    fileInfo.textContent = `已选择: ${file.name}`;
+                };
+                skinImage.onerror = function() {
+                    fileInfo.textContent = '皮肤加载失败，请重试';
+                };
+                skinImage.src = e.target.result;
+            };
+            reader.onerror = function() {
+                fileInfo.textContent = '文件读取失败，请重试';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 加载底图
+        function loadBaseImage(basePath) {
+            fileInfo.textContent = '正在加载底图...';
+            
+            // 显示加载动画
+            fileInfo.innerHTML = `<span class="loading"></span> 正在加载底图...`;
+            
+            // 加载选中的底图
+            baseImage = new Image();
+            baseImage.onload = function() {
+                // 更新文件信息
+                fileInfo.textContent = `已选择底图: ${basePath}`;
+                console.log('Base image loaded successfully:', basePath);
+            };
+            baseImage.onerror = function() {
+                fileInfo.textContent = '底图加载失败，请重试';
+                console.error('Failed to load base image:', basePath);
+                baseImage = null;
+            };
+            baseImage.src = basePath;
+        }
+        
+        // 监听文件选择
+        skinFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.type === 'image/png') {
+                    handleFile(file);
+                } else {
+                    fileInfo.textContent = '请上传PNG格式的皮肤文件';
+                }
+            } else {
+                fileInfo.textContent = '未选择文件';
+            }
+        });
+        
+        // 转换按钮点击事件
+        convertBtn.addEventListener('click', function() {
+            if (!skinImage) {
+                fileInfo.textContent = '请先上传皮肤文件';
+                return;
+            }
+            
+            // 显示加载状态
+            const originalText = convertBtn.textContent;
+            convertBtn.innerHTML = '<span class="loading"></span> 转换中...';
+            convertBtn.disabled = true;
+            
+            try {
+                console.log('开始转换...');
+                
+                // 直接执行转换，不使用setTimeout避免延迟
+                convertSkinToPainting();
+                
+                console.log('转换完成');
+                
+                // 恢复按钮状态
+                convertBtn.innerHTML = originalText;
+                convertBtn.disabled = false;
+            } catch (error) {
+                // 处理错误
+                console.error('转换过程中出错:', error);
+                console.error('错误堆栈:', error.stack);
+                
+                // 恢复按钮状态
+                convertBtn.innerHTML = originalText;
+                convertBtn.disabled = false;
+            }
+        });
+        
+        // 转换皮肤为画贴图的函数
+        function convertSkinToPainting() {
+            console.log('开始转换皮肤...');
+            
+            // 清空画布
+            paintingCtx.clearRect(0, 0, 16, 16);
+            console.log('画布已清空');
+            
+            // 绘制base图片作为底纹
+            if (baseImage && baseImage.complete) {
+                console.log('使用base图片作为底纹');
+                paintingCtx.drawImage(baseImage, 0, 0, 16, 16);
+            } else {
+                console.log('base图片未加载，使用默认背景');
+                // 如果base图片加载失败，使用默认背景
+                paintingCtx.fillStyle = '#87CEEB';
+                paintingCtx.fillRect(0, 0, 16, 16);
+                paintingCtx.fillStyle = '#ffffff';
+                paintingCtx.fillRect(2, 2, 12, 12);
+            }
+            
+            // 创建一个临时画布，用于绘制皮肤贴图
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 16;
+            tempCanvas.height = 16;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // 绘制皮肤的头部区域到临时画布（整体向上移动1像素）
+            console.log('绘制皮肤头部区域');
+            tempCtx.drawImage(skinImage, 8, 8, 8, 8, 4, 3, 8, 8);
+            
+            // 绘制帽子/头发区域到临时画布（整体向上移动1像素）
+            console.log('绘制帽子/头发区域');
+            tempCtx.drawImage(skinImage, 40, 8, 8, 8, 4, 3, 8, 8);
+            
+            // 绘制皮肤的其他区域到临时画布（整体向上移动1像素）
+            console.log('绘制皮肤其他区域');
+            tempCtx.drawImage(skinImage, 19, 20, 10, 3, 3, 11, 10, 3);
+            
+            // 将临时画布绘制到主画布上（base图片之上）
+            console.log('将皮肤贴图绘制到base图片之上');
+            paintingCtx.drawImage(tempCanvas, 0, 0, 16, 16);
+            
+            // 显示下载链接
+            downloadLink.style.display = 'inline-block';
+            downloadLink.href = paintingTextureCanvas.toDataURL('image/png');
+            downloadLink.download = 'painting_texture.png';
+            console.log('显示下载链接成功');
+        }
+        
+
+        
+        // 初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
